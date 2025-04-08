@@ -3,11 +3,6 @@ export interface ApiResponse<T> {
   data: T;
 }
 
-export interface ApiListResponse<T> {
-  success: boolean;
-  data: T[];
-}
-
 export interface ApiErrorResponse {
   success: false;
   error: string;
@@ -15,7 +10,7 @@ export interface ApiErrorResponse {
 
 export interface ApiListResponse<T> {
   success: boolean;
-  count: number;
+  count?: number;
   data: T[];
 }
 
