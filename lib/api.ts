@@ -15,11 +15,22 @@ import type {
   User,
 } from "@/types/api";
 
-const API_BASE_URL = "http://localhost:5000/api/v1";
+// --- Define API URLs based on environment ---
+const PROD_API_BASE_URL =
+  "https://ataasil-backend-production.up.railway.app/api/v1"; // Use HTTPS for production
+const DEV_API_BASE_URL = "http://localhost:5000/api/v1";
+
+// Determine the correct URL based on NODE_ENV
+// process.env.NODE_ENV is 'production' in production builds/environments
+// It's usually 'development' otherwise (locally).
+const API_BASE_URL =
+  process.env.NODE_ENV === "production" ? PROD_API_BASE_URL : DEV_API_BASE_URL;
+
+console.log(`API Base URL set to: ${API_BASE_URL}`); // Optional: Log the URL being used for debugging
 
 // Create axios instance with base configuration
 const api: AxiosInstance = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: API_BASE_URL, // Use the dynamically determined URL
   headers: {
     "Content-Type": "application/json",
   },
@@ -28,7 +39,8 @@ const api: AxiosInstance = axios.create({
 // Add request interceptor to add auth token to requests
 api.interceptors.request.use(
   (config) => {
-    const token = getAuthToken();
+    // Make sure token retrieval works in both server/client contexts if needed
+    const token = typeof window !== "undefined" ? getAuthToken() : null;
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -46,21 +58,41 @@ api.interceptors.response.use(
     // Handle specific error cases
     if (response?.status === 401) {
       // Handle unauthorized (could redirect to login or refresh token)
+      // Ensure localStorage access is guarded for environments where it's not available (like server-side rendering)
       if (typeof window !== "undefined") {
+        console.error("Unauthorized request. Clearing auth token."); // Log the action
         localStorage.removeItem("auth_token");
         localStorage.removeItem("auth_user");
+        // Optionally redirect to login page
+        // window.location.href = '/login';
       }
     }
 
     // Extract error message from API response if available
     const errorMessage =
-      response?.data?.error || "An unexpected error occurred";
+      response?.data?.error ||
+      response?.data?.message ||
+      error.message ||
+      "An unexpected error occurred";
+
+    // Log the detailed error
+    console.error("API Error:", errorMessage, {
+      status: response?.status,
+      config: error.config, // Contains request details
+      data: response?.data, // Contains response body
+    });
 
     // Create a custom error with the message
     const customError = new Error(errorMessage);
+    // Optionally attach status code or other details to the custom error
+    // (customError as any).status = response?.status;
+    // (customError as any).data = response?.data;
+
     return Promise.reject(customError);
   }
 );
+
+// --- API Function Exports (Remain the same) ---
 
 // Auth API
 export const authApi = {

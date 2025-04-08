@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  useCertificates,
   useDownloadCertificate,
   useUserCertificates,
 } from "@/hooks/use-certificates";
@@ -21,6 +20,7 @@ import { CertificateWithDetails } from "@/types/api";
 
 export function CertificatesList() {
   const { data, isLoading } = useUserCertificates();
+
   const downloadCertificate = useDownloadCertificate();
   const { toast } = useToast();
 
@@ -84,7 +84,7 @@ export function CertificatesList() {
   return (
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
       {certificatesWithDetails.map((certificate) => (
-        <Card key={certificate.id}>
+        <Card key={certificate._id}>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Award className="h-5 w-5" />
