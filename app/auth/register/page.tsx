@@ -1,26 +1,53 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import Link from "next/link"
-import { useAuth } from "@/hooks/use-auth"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { useToast } from "@/hooks/use-toast"
-import { MainNav } from "@/components/main-nav"
-import { Footer } from "@/components/footer"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { registerSchema, type RegisterFormValues } from "@/lib/validations"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { useAuth } from "@/hooks/use-auth";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
+import { MainNav } from "@/components/main-nav";
+import { Footer } from "@/components/footer";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { registerSchema, type RegisterFormValues } from "@/lib/validations";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 
 export default function RegisterPage() {
-  const [isLoading, setIsLoading] = useState(false)
-  const { register } = useAuth()
-  const router = useRouter()
-  const { toast } = useToast()
+  const [isLoading, setIsLoading] = useState(false);
+  const { register, isAuthenticated } = useAuth();
+  const router = useRouter();
+  const { toast } = useToast();
+
+  // Redirect if user is already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.replace("/dashboard");
+    }
+  }, [isAuthenticated, router]);
 
   const form = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
@@ -32,12 +59,12 @@ export default function RegisterPage() {
       secret: "",
     },
     mode: "onChange",
-  })
+  });
 
-  const watchRole = form.watch("role")
+  const watchRole = form.watch("role");
 
   const onSubmit = async (values: RegisterFormValues) => {
-    setIsLoading(true)
+    setIsLoading(true);
 
     try {
       await register({
@@ -46,22 +73,23 @@ export default function RegisterPage() {
         password: values.password,
         role: values.role,
         secret: values.role === "admin" ? values.secret : undefined,
-      })
+      });
       toast({
         title: "Registration successful",
         description: "Your account has been created. You can now log in.",
-      })
-      router.push("/auth/login")
+      });
+      router.push("/auth/login");
     } catch (error: any) {
       toast({
         title: "Registration failed",
-        description: error.message || "Please check your information and try again.",
+        description:
+          error.message || "Please check your information and try again.",
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -70,7 +98,9 @@ export default function RegisterPage() {
         <Card className="w-full max-w-md">
           <CardHeader>
             <CardTitle className="text-2xl">Create an account</CardTitle>
-            <CardDescription>Enter your information to create an account</CardDescription>
+            <CardDescription>
+              Enter your information to create an account
+            </CardDescription>
           </CardHeader>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -95,7 +125,11 @@ export default function RegisterPage() {
                     <FormItem>
                       <FormLabel>Email</FormLabel>
                       <FormControl>
-                        <Input placeholder="name@example.com" type="email" {...field} />
+                        <Input
+                          placeholder="name@example.com"
+                          type="email"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -120,7 +154,10 @@ export default function RegisterPage() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Role</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select a role" />
@@ -158,7 +195,10 @@ export default function RegisterPage() {
                 </Button>
                 <p className="text-sm text-center text-muted-foreground">
                   Already have an account?{" "}
-                  <Link href="/auth/login" className="text-primary underline underline-offset-4">
+                  <Link
+                    href="/auth/login"
+                    className="text-primary underline underline-offset-4"
+                  >
                     Login
                   </Link>
                 </p>
@@ -169,6 +209,5 @@ export default function RegisterPage() {
       </main>
       <Footer />
     </div>
-  )
+  );
 }
-

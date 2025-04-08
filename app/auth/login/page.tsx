@@ -1,25 +1,39 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import Link from "next/link"
-import { useAuth } from "@/hooks/use-auth"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { useToast } from "@/hooks/use-toast"
-import { MainNav } from "@/components/main-nav"
-import { Footer } from "@/components/footer"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { loginSchema, type LoginFormValues } from "@/lib/validations"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { useAuth } from "@/hooks/use-auth";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
+import { MainNav } from "@/components/main-nav";
+import { Footer } from "@/components/footer";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { loginSchema, type LoginFormValues } from "@/lib/validations";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 
 export default function LoginPage() {
-  const [isLoading, setIsLoading] = useState(false)
-  const { login } = useAuth()
-  const router = useRouter()
-  const { toast } = useToast()
+  const [isLoading, setIsLoading] = useState(false);
+  const { user, login, isAuthenticated } = useAuth();
+  const router = useRouter();
+  const { toast } = useToast();
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -27,28 +41,36 @@ export default function LoginPage() {
       email: "",
       password: "",
     },
-  })
+  });
+
+  // Redirect if user is already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.replace("/dashboard");
+    }
+  }, [isAuthenticated, router]);
 
   const onSubmit = async (values: LoginFormValues) => {
-    setIsLoading(true)
+    setIsLoading(true);
 
     try {
-      await login(values.email, values.password)
+      await login(values.email, values.password);
       toast({
         title: "Login successful",
         description: "Welcome back to Ataasil E-Learning!",
-      })
-      router.push("/dashboard")
+      });
+      router.push("/dashboard");
     } catch (error: any) {
       toast({
         title: "Login failed",
-        description: error.message || "Please check your credentials and try again.",
+        description:
+          error.message || "Please check your credentials and try again.",
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -57,7 +79,9 @@ export default function LoginPage() {
         <Card className="w-full max-w-md">
           <CardHeader>
             <CardTitle className="text-2xl">Login</CardTitle>
-            <CardDescription>Enter your credentials to access your account</CardDescription>
+            <CardDescription>
+              Enter your credentials to access your account
+            </CardDescription>
           </CardHeader>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -69,7 +93,11 @@ export default function LoginPage() {
                     <FormItem>
                       <FormLabel>Email</FormLabel>
                       <FormControl>
-                        <Input placeholder="name@example.com" type="email" {...field} />
+                        <Input
+                          placeholder="name@example.com"
+                          type="email"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -95,7 +123,10 @@ export default function LoginPage() {
                 </Button>
                 <p className="text-sm text-center text-muted-foreground">
                   Don't have an account?{" "}
-                  <Link href="/auth/register" className="text-primary underline underline-offset-4">
+                  <Link
+                    href="/auth/register"
+                    className="text-primary underline underline-offset-4"
+                  >
                     Register
                   </Link>
                 </p>
@@ -106,6 +137,5 @@ export default function LoginPage() {
       </main>
       <Footer />
     </div>
-  )
+  );
 }
-

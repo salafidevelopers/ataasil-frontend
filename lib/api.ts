@@ -15,7 +15,7 @@ import type {
   User,
 } from "@/types/api";
 
-const API_BASE_URL = "https://ataasil-backend-production.up.railway.app/api/v1";
+const API_BASE_URL = "http://ataasil-backend-production.up.railway.app/api/v1";
 
 // Create axios instance with base configuration
 const api: AxiosInstance = axios.create({
