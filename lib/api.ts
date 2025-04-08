@@ -13,6 +13,8 @@ import type {
   RegisterInput,
   CourseInput,
   User,
+  PasswordChangeInput,
+  ProfileUpdateInput,
 } from "@/types/api";
 
 // --- Define API URLs based on environment ---
@@ -104,6 +106,18 @@ export const authApi = {
 
   getCurrentUser: (): Promise<AxiosResponse<ApiResponse<User>>> =>
     api.get("/auth/me"),
+};
+
+// Profile API
+export const profileApi = {
+  updateProfile: (
+    data: ProfileUpdateInput
+  ): Promise<AxiosResponse<ApiResponse<User>>> => api.put("/profile", data),
+
+  changePassword: (
+    data: PasswordChangeInput
+  ): Promise<AxiosResponse<ApiResponse<{}>>> =>
+    api.put("/profile/password", data),
 };
 
 // Courses API

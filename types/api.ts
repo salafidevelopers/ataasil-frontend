@@ -44,6 +44,17 @@ export interface AuthResponse {
   user: User;
 }
 
+// Profile Types
+export interface ProfileUpdateInput {
+  name: string;
+  email: string;
+}
+
+export interface PasswordChangeInput {
+  currentPassword: string;
+  newPassword: string;
+}
+
 // Course Types
 export interface Video {
   id: string;
